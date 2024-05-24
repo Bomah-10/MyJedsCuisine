@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, FlatList, TouchableOpacity, Image } from 'react-native';
 
 const Confirmation = ({ navigation, route }) => {
   const { selectedProducts } = route.params;
@@ -30,8 +30,12 @@ const Confirmation = ({ navigation, route }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.productItem}>
+            <Image
+              style={styles.productImage}
+              source={{ uri: item.imageUrl }} // Use the image URL here
+            />
             <Text style={styles.productName}>{item.name}</Text>
-            <Text style={styles.productPrice}>N${item.price}</Text>
+            <Text style={styles.productPrice}>N${item.price}       </Text>
             <View style={styles.quantityContainer}>
               <TouchableOpacity onPress={() => handleQuantityChange(item, -1)}>
                 <Text style={styles.quantityButton}>-</Text>
@@ -64,11 +68,18 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 10,
     marginVertical: 8,
     borderWidth: 1,
     borderColor: 'gray',
+    borderRadius: 5,
+  },
+  productImage: {
+    width: 100,
+    height: 100,
+    marginRight: 10,
     borderRadius: 5,
   },
   productName: {
@@ -78,7 +89,7 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 16,
     flex: 1,
-    textAlign: 'right',
+    textAlign: 'center',
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -89,6 +100,8 @@ const styles = StyleSheet.create({
   quantityButton: {
     fontSize: 24,
     paddingHorizontal: 8,
+
+    borderWidth: 1,
   },
   quantity: {
     fontSize: 16,

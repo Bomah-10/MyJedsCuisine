@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { firestore } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -42,8 +42,14 @@ const MainMenu = ({ navigation }) => {
             ]}
             onPress={() => toggleProductSelection(item)}
           >
-            <Text style={styles.productName}>{item.name}</Text>
-            <Text style={styles.productPrice}>N${item.price}</Text>
+            <Image
+              style={styles.productImage}
+              source={{ uri: item.imageUrl }} // Use the image URL here
+            />
+            <View style={styles.productDetails}>
+              <Text style={styles.productName}>{item.name}</Text>
+              <Text style={styles.productPrice}>N${item.price}</Text>
+            </View>
           </TouchableOpacity>
         )}
       />
@@ -63,8 +69,10 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 10,
     marginVertical: 8,
     borderWidth: 1,
     borderColor: 'gray',
@@ -72,6 +80,16 @@ const styles = StyleSheet.create({
   },
   selectedProductItem: {
     backgroundColor: '#d3d3d3',
+  },
+  productImage: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  productDetails: {
+    flex: 1,
+    justifyContent: 'center',
   },
   productName: {
     fontSize: 16,
