@@ -18,7 +18,7 @@ const StudentLogin = () => {
     try {
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        navigation.navigate('MainMenu');
+        navigation.navigate('WelcomeToJeds');
       } else {
         setError('Invalid student number or password');
       }

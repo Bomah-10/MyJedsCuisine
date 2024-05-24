@@ -8,6 +8,7 @@ import MainMenu from './screens/MainMenu';
 import RecievedOrders from './screens/RecievedOrders';
 import Confirmation from './screens/Confirmation';
 import EditMenu from './screens/EditMenu';
+import WelcomeToJeds from './screens/WelcomeToJeds';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,7 @@ const App = () => {
         <Stack.Screen name="RecievedOrders" component={RecievedOrders} />
         <Stack.Screen name="Confirmation" component={Confirmation} />
         <Stack.Screen name="EditMenu" component={EditMenu} />
+        <Stack.Screen name="WelcomeToJeds" component={WelcomeToJeds} />
       </Stack.Navigator>
     </NavigationContainer>
   );
