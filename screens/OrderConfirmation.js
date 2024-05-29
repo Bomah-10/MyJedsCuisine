@@ -1,13 +1,55 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
 
 const OrderConfirmation = ({ route }) => {
-  const { selectedProducts, totalPrice } = route.params;
+  const { selectedProducts } = route.params;
+  const navigation = useNavigation();
+
+  const totalPrice = selectedProducts.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+
+  const handleOrderConfirmation = async () => {
+    const orderNumber = await generateOrderNumber();
+    const token = generateToken();
+    await saveOrderToFirestore(orderNumber, token, selectedProducts);
+    navigation.navigate('Token', { orderNumber, token });
+  };
+
+  const generateOrderNumber = async () => {
+    const firestore = getFirestore();
+    const ordersCollectionRef = collection(firestore, 'orders');
+    const snapshot = await getDocs(ordersCollectionRef);
+    const orderNumber = snapshot.size + 1; // Incrementing the order number
+    return orderNumber;
+  };
+
+  const generateToken = () => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    let token = '';
+    for (let i = 0; i < 3; i++) {
+      token += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    for (let i = 0; i < 5; i++) {
+      token += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    }
+    return token;
+  };
+
+  const saveOrderToFirestore = async (orderNumber, token, selectedProducts) => {
+    const firestore = getFirestore();
+    const ordersCollectionRef = collection(firestore, 'orders');
+    await addDoc(ordersCollectionRef, {
+      orderNumber,
+      token,
+      items: selectedProducts.map(product => ({ name: product.name, quantity: product.quantity }))
+    });
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Order Confirmation</Text>
-      {/* FlatList to display selected products */}
       <FlatList
         data={selectedProducts}
         keyExtractor={(item) => item.id}
@@ -25,17 +67,14 @@ const OrderConfirmation = ({ route }) => {
           </View>
         )}
       />
-      {/* Display total amount */}
       <Text style={styles.totalAmount}>Total: N${totalPrice.toFixed(2)}</Text>
-      {/* Button to confirm order */}
-      <TouchableOpacity style={styles.confirmButton}>
+      <TouchableOpacity style={styles.confirmButton} onPress={handleOrderConfirmation}>
         <Text style={styles.confirmButtonText}>Confirm Order</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

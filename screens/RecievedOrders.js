@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { firestore } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -14,18 +14,15 @@ const ReceivedOrders = () => {
       navigation.navigate('CafeteriaLogin');
     } catch (err) {
       console.error('Error logging out: ', err);
-      // Handle error if necessary
     }
   };
 
   const handleEditMenu = () => {
-    // Navigate to the screen where cafeteria administrators can edit the menu items
     navigation.navigate('EditMenu');
   };
 
   const handleViewOrders = () => {
-    // Navigate to the screen where cafeteria administrators can view received orders
-    navigation.navigate('ViewOrders');
+    navigation.navigate('TodaysOrders');
   };
 
   return (
@@ -34,7 +31,7 @@ const ReceivedOrders = () => {
         <Text style={styles.headerText}>Received Orders</Text>
         <Text style={styles.headerText}>for JEDS Cafeteria</Text>
       </View>
-      <Text style={styles.text}>Welcome! You haven't received any orders</Text>
+      <Text style={styles.text}>Welcome to the Jeds Cafe site, here you can edit the Menu and view the orders recieved for today. </Text>
       <TouchableOpacity style={styles.editMenuButton} onPress={handleEditMenu}>
         <Text style={styles.buttonText}>Edit Menu</Text>
       </TouchableOpacity>
@@ -53,6 +50,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 16,
   },
   header: {
     position: 'absolute',
@@ -60,60 +58,54 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'red',
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    padding: 16,
+    alignItems: 'center',
   },
   headerText: {
+    color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
   },
   text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 60,
+    marginTop: 80,
+    fontSize: 16,
+    textAlign: 'center',
   },
   editMenuButton: {
-    backgroundColor: 'blue',
-    padding: 10,
+    backgroundColor: 'green',
+    padding: 16,
     borderRadius: 10,
-    marginVertical: 10,
-    width: 150,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: 10,
+    width: '80%',
   },
   viewOrdersButton: {
-    backgroundColor: 'green',
-    padding: 10,
+    backgroundColor: 'blue',
+    padding: 16,
     borderRadius: 10,
-    marginVertical: 10,
-    width: 150,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: 10,
+    width: '80%',
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   logoutButton: {
     backgroundColor: 'red',
-    padding: 10,
+    padding: 16,
     borderRadius: 10,
-    marginVertical: 10,
-    width: 100,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 20,
+    marginVertical: 10,
+    width: '80%',
   },
   logoutButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
