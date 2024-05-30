@@ -16,12 +16,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/first-icon.png",
+        "foregroundImage": "./assets/images/first-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/favicon.png"
     },
     "entryPoint": "./node_modules/expo/AppEntry.js"
   }

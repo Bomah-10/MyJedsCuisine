@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { getFirestore, collection, query, where, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 
-const TodaysOrders = () => {
+const TodaysOrders = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [tokenInput, setTokenInput] = useState('');
@@ -20,8 +20,13 @@ const TodaysOrders = () => {
     setOrders(fetchedOrders);
   };
 
-  const handleOrderReady = (order) => {
+  const handleOrderReady = async (order) => {
     setSelectedOrder(order);
+    // Update status to Ready
+    const firestore = getFirestore();
+    const orderRef = doc(firestore, 'orders', order.id);
+    await updateDoc(orderRef, { status: 'Ready' });
+    fetchOrders(); // Fetch updated orders
   };
 
   const handleTokenSubmit = async () => {
@@ -30,7 +35,7 @@ const TodaysOrders = () => {
       const orderRef = doc(firestore, 'orders', selectedOrder.id);
       await updateDoc(orderRef, { status: 'Picked Up' });
       await deleteDoc(orderRef); // Delete the document from Firestore
-      Alert.alert('Order successful', 'The order has been picked up and removed from the database.');
+      Alert.alert('Order successful', 'The order has been picked up');
       setSelectedOrder(null);
       setTokenInput('');
       fetchOrders();

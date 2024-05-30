@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { firestore } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
-const MainMenu = ({ navigation, route }) => {
-  const { studentNumber } = route.params; // Added studentNumber
+const MainMenu = ({ route }) => {
+  const { studentNumber } = route.params;
+  const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const firestore = getFirestore();
       const productsCollection = collection(firestore, 'products');
       const productsSnapshot = await getDocs(productsCollection);
       const productsList = productsSnapshot.docs.map(doc => ({
@@ -31,6 +32,10 @@ const MainMenu = ({ navigation, route }) => {
     }
   };
 
+  const handleMyOrders = () => {
+    navigation.navigate('MyOrders', { studentNumber });
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -46,7 +51,7 @@ const MainMenu = ({ navigation, route }) => {
           >
             <Image
               style={styles.productImage}
-              source={{ uri: item.imageUrl }} // Use the image URL here
+              source={{ uri: item.imageUrl }}
             />
             <View style={styles.productDetails}>
               <Text style={styles.productName}>{item.name}</Text>
@@ -55,11 +60,9 @@ const MainMenu = ({ navigation, route }) => {
           </TouchableOpacity>
         )}
       />
-      {selectedProducts.length > 0 && (
-        <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('Confirmation', { selectedProducts, studentNumber })}>
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity style={styles.continueButton} onPress={handleMyOrders}>
+        <Text style={styles.continueButtonText}>My Orders</Text>
+      </TouchableOpacity>
     </View>
   );
 };

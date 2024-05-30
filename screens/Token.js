@@ -11,6 +11,10 @@ const Token = ({ route }) => {
     navigation.navigate('MyOrders', { studentNumber });
   };
 
+  const handleMainMenu = () => {
+    navigation.navigate('MainMenu', { studentNumber });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.orderText}>Your order is number {orderNumber}, it is being processed.</Text>
@@ -20,6 +24,9 @@ const Token = ({ route }) => {
       </Text>
       <TouchableOpacity style={styles.myOrdersButton} onPress={handleMyOrders}>
         <Text style={styles.buttonText}>My Orders</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.mainMenuButton} onPress={handleMainMenu}>
+        <Text style={styles.buttonText}>Main Menu</Text>
       </TouchableOpacity>
     </View>
   );
@@ -50,6 +57,15 @@ const styles = StyleSheet.create({
   },
   myOrdersButton: {
     backgroundColor: 'blue',
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  mainMenuButton: {
+    backgroundColor: 'green',
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',
