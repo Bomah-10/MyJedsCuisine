@@ -18,7 +18,8 @@ const StudentLogin = () => {
     try {
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        navigation.navigate('MainMenu');
+        const studentData = querySnapshot.docs[0].data();
+        navigation.navigate('MainMenu', { studentNumber: studentData.studentNumber }); // Passing studentNumber to MainMenu
       } else {
         setError('Invalid student number or password');
       }
