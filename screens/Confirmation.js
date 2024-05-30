@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, FlatList, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 
 const Confirmation = ({ navigation, route }) => {
-  const { selectedProducts } = route.params;
+  const { selectedProducts, studentNumber } = route.params; // Added studentNumber
   const [products, setProducts] = useState(selectedProducts);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -16,7 +16,7 @@ const Confirmation = ({ navigation, route }) => {
     if (method === 'Meal Account' && totalAmount > 90) {
       Alert.alert("Error", "Sorry! Your total amount cannot exceed N$ 90 when paying with a meal account.");
     } else {
-      navigation.navigate('OrderConfirmation', { selectedProducts: products, totalPrice: totalAmount });
+      navigation.navigate('OrderConfirmation', { selectedProducts: products, studentNumber: studentNumber }); // Pass studentNumber to OrderConfirmation
     }
   };
 
@@ -97,7 +97,7 @@ const Confirmation = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
- container: {
+  container: {
     flex: 1,
     padding: 16,
   },
@@ -118,21 +118,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   productImage: {
-    width: 100,
-    height: 100,
+    width: 50,
+    height: 50,
     marginRight: 10,
     borderRadius: 5,
   },
   productDetails: {
     flex: 1,
-    marginRight: 10,
+    justifyContent: 'center',
   },
   productName: {
     fontSize: 16,
   },
   productPrice: {
     fontSize: 16,
-    fontWeight: 'bold',
   },
   quantityContainer: {
     flexDirection: 'row',

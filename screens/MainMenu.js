@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { firestore } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
 
-const MainMenu = ({ navigation }) => {
+const MainMenu = ({ navigation, route }) => {
+  const { studentNumber } = route.params; // Added studentNumber
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
 
@@ -54,7 +56,7 @@ const MainMenu = ({ navigation }) => {
         )}
       />
       {selectedProducts.length > 0 && (
-        <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('Confirmation', { selectedProducts })}>
+        <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('Confirmation', { selectedProducts, studentNumber })}>
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
       )}

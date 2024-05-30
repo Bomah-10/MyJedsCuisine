@@ -1,13 +1,14 @@
+// Token.js
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const Token = ({ route }) => {
-  const { orderNumber, token } = route.params;
+  const { orderNumber, token, studentNumber } = route.params;
   const navigation = useNavigation();
 
   const handleMyOrders = () => {
-    navigation.navigate('MyOrders');
+    navigation.navigate('MyOrders', { studentNumber });
   };
 
   return (
@@ -18,7 +19,7 @@ const Token = ({ route }) => {
         Thank you for your order, we will notify you when it’s ready. Keep your token safe!
       </Text>
       <TouchableOpacity style={styles.myOrdersButton} onPress={handleMyOrders}>
-        <Text style={styles.myOrdersButtonText}>My Orders</Text>
+        <Text style={styles.buttonText}>My Orders</Text>
       </TouchableOpacity>
     </View>
   );
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: '80%',
   },
-  myOrdersButtonText: {
+  buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',

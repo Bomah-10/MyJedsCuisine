@@ -4,24 +4,32 @@ import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
 const OrderConfirmation = ({ route }) => {
-  const { selectedProducts } = route.params;
+  const { selectedProducts, studentNumber } = route.params;
   const navigation = useNavigation();
 
   const totalPrice = selectedProducts.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
 
   const handleOrderConfirmation = async () => {
-    const orderNumber = await generateOrderNumber();
-    const token = generateToken();
-    await saveOrderToFirestore(orderNumber, token, selectedProducts);
-    navigation.navigate('Token', { orderNumber, token });
+    try {
+      const orderNumber = await generateOrderNumber();
+      const token = generateToken();
+      console.log('Order Number:', orderNumber);
+      console.log('Token:', token);
+      console.log('Selected Products:', selectedProducts);
+      console.log('Student Number:', studentNumber);
+
+      await saveOrderToFirestore(orderNumber, token, selectedProducts, studentNumber);
+      navigation.navigate('Token', { orderNumber, token, studentNumber });
+    } catch (error) {
+      console.error('Error confirming order:', error);
+    }
   };
 
   const generateOrderNumber = async () => {
     const firestore = getFirestore();
     const ordersCollectionRef = collection(firestore, 'orders');
     const snapshot = await getDocs(ordersCollectionRef);
-    const orderNumber = snapshot.size + 1; // Incrementing the order number
-    return orderNumber;
+    return snapshot.size + 1;
   };
 
   const generateToken = () => {
@@ -37,13 +45,15 @@ const OrderConfirmation = ({ route }) => {
     return token;
   };
 
-  const saveOrderToFirestore = async (orderNumber, token, selectedProducts) => {
+  const saveOrderToFirestore = async (orderNumber, token, selectedProducts, studentNumber) => {
     const firestore = getFirestore();
     const ordersCollectionRef = collection(firestore, 'orders');
     await addDoc(ordersCollectionRef, {
       orderNumber,
       token,
-      items: selectedProducts.map(product => ({ name: product.name, quantity: product.quantity }))
+      studentNumber,
+      items: selectedProducts.map(product => ({ name: product.name, quantity: product.quantity })),
+      status: 'Pending',
     });
   };
 
@@ -57,7 +67,7 @@ const OrderConfirmation = ({ route }) => {
           <View style={styles.productItem}>
             <Image
               style={styles.productImage}
-              source={{ uri: item.imageUrl }} // Use the image URL here
+              source={{ uri: item.imageUrl }}
             />
             <View style={styles.productDetails}>
               <Text style={styles.productName}>{item.name}</Text>
