@@ -14,14 +14,13 @@ const TodaysOrders = ({ navigation }) => {
   const fetchOrders = async () => {
     const firestore = getFirestore();
     const ordersCollectionRef = collection(firestore, 'orders');
-    const q = query(ordersCollectionRef, where('status', '==', 'Pending'));
+    const q = query(ordersCollectionRef, where('status', 'in', ['Pending', 'Ready']));
     const querySnapshot = await getDocs(q);
     const fetchedOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     setOrders(fetchedOrders);
   };
 
   const handleOrderReady = async (order) => {
-    setSelectedOrder(order);
     // Update status to Ready
     const firestore = getFirestore();
     const orderRef = doc(firestore, 'orders', order.id);
@@ -30,10 +29,9 @@ const TodaysOrders = ({ navigation }) => {
   };
 
   const handleTokenSubmit = async () => {
-    if (selectedOrder.token === tokenInput) {
+    if (selectedOrder && selectedOrder.token === tokenInput) {
       const firestore = getFirestore();
       const orderRef = doc(firestore, 'orders', selectedOrder.id);
-      await updateDoc(orderRef, { status: 'Picked Up' });
       await deleteDoc(orderRef); // Delete the document from Firestore
       Alert.alert('Order successful', 'The order has been picked up');
       setSelectedOrder(null);
@@ -53,19 +51,15 @@ const TodaysOrders = ({ navigation }) => {
         renderItem={({ item }) => (
           <View style={styles.orderItem}>
             <Text style={styles.orderText}>Order Number: {item.orderNumber}</Text>
-            <Text style={styles.orderText}>Student Number: {item.studentNumber}</Text>
-            <Text style={styles.orderText}>Items Ordered:</Text>
-            {item.items && item.items.map((product, index) => ( // Add null check for item.items
-              <Text key={index} style={styles.itemText}>
-                {product.name} x {product.quantity}
-              </Text>
-            ))}
-            <TouchableOpacity
-              style={styles.readyButton}
-              onPress={() => handleOrderReady(item)}
-            >
-              <Text style={styles.readyButtonText}>Ready</Text>
-            </TouchableOpacity>
+            <Text style={styles.orderText}>Status: {item.status}</Text>
+            {item.status === 'Pending' && (
+              <TouchableOpacity
+                style={styles.readyButton}
+                onPress={() => handleOrderReady(item)}
+              >
+                <Text style={styles.readyButtonText}>Ready</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       />
@@ -107,10 +101,6 @@ const styles = StyleSheet.create({
   orderText: {
     fontSize: 18,
     marginBottom: 5,
-  },
-  itemText: {
-    fontSize: 16,
-    marginLeft: 10,
   },
   readyButton: {
     backgroundColor: 'green',
