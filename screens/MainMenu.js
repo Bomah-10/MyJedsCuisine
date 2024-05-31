@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
 const MainMenu = ({ route }) => {
@@ -32,6 +32,34 @@ const MainMenu = ({ route }) => {
     }
   };
 
+  const generateRandomCode = () => {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
+  };
+
+  const handleContinue = async () => {
+    const firestore = getFirestore();
+    const ordersCollection = collection(firestore, 'orders');
+
+    // Get the current number of documents to determine the order number
+    const ordersQuery = query(ordersCollection, orderBy('orderNumber'));
+    const ordersSnapshot = await getDocs(ordersQuery);
+    const orderNumber = ordersSnapshot.size + 1; // orderNumber based on the position
+
+    const token = generateRandomCode();
+
+    // Create a new order document
+    await addDoc(ordersCollection, {
+      studentNumber,
+      orderNumber,
+      token,
+      itemsOrdered: selectedProducts,
+      status: 'Pending',
+    });
+
+    // Navigate to Confirmation screen
+    navigation.navigate('Confirmation', { selectedProducts, studentNumber });
+  };
+
   const handleMyOrders = () => {
     navigation.navigate('MyOrders', { studentNumber });
   };
@@ -60,8 +88,13 @@ const MainMenu = ({ route }) => {
           </TouchableOpacity>
         )}
       />
-      <TouchableOpacity style={styles.continueButton} onPress={handleMyOrders}>
-        <Text style={styles.continueButtonText}>My Orders</Text>
+      {selectedProducts.length > 0 && (
+        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
+          <Text style={styles.continueButtonText}>Continue</Text>
+        </TouchableOpacity>
+      )}
+      <TouchableOpacity style={styles.myOrdersButton} onPress={handleMyOrders}>
+        <Text style={styles.myOrdersButtonText}>My Orders</Text>
       </TouchableOpacity>
     </View>
   );
@@ -111,6 +144,19 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   continueButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  myOrdersButton: {
+    backgroundColor: 'blue',
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+  },
+  myOrdersButtonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
