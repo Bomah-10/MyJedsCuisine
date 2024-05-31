@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { getFirestore, collection, query, where, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 
 const MyOrders = ({ route }) => {
@@ -28,6 +28,28 @@ const MyOrders = ({ route }) => {
     fetchOrders();
   };
 
+  const handleDeleteOrder = async (orderId) => {
+    Alert.alert(
+      "Delete Order",
+      "Are you sure you want to delete this order?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            const firestore = getFirestore();
+            const orderRef = doc(firestore, 'orders', orderId);
+            await deleteDoc(orderRef);
+            fetchOrders(); // Refresh orders after deletion
+          }
+        }
+      ]
+    );
+  };
+
   const handleMainMenuPress = () => {
     navigation.navigate('MainMenu', { studentNumber });
   };
@@ -35,9 +57,6 @@ const MyOrders = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Orders</Text>
-      <TouchableOpacity style={styles.mainMenuButton} onPress={handleMainMenuPress}>
-        <Text style={styles.mainMenuButtonText}>Main Menu</Text>
-      </TouchableOpacity>
       <FlatList
         data={orders}
         keyExtractor={(item) => item.id}
@@ -54,9 +73,18 @@ const MyOrders = ({ route }) => {
                 <Text style={styles.pickupButtonText}>Mark as Picked Up</Text>
               </TouchableOpacity>
             )}
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDeleteOrder(item.id)}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
+      <TouchableOpacity style={styles.mainMenuButton} onPress={handleMainMenuPress}>
+        <Text style={styles.mainMenuButtonText}>Main Menu</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -87,7 +115,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
-    marginVertical: 10,
+    marginTop: 10,
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    right: 16,
   },
   mainMenuButtonText: {
     color: 'white',
@@ -98,8 +130,20 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
+    marginTop: 10,
   },
   pickupButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  deleteButtonText: {
     color: 'white',
     fontSize: 16,
   },
