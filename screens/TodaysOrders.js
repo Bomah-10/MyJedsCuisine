@@ -4,8 +4,7 @@ import { getFirestore, collection, query, where, getDocs, updateDoc, doc, delete
 
 const TodaysOrders = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [tokenInput, setTokenInput] = useState('');
+  const [tokenInputs, setTokenInputs] = useState({}); // Track token inputs for each order
 
   useEffect(() => {
     fetchOrders();
@@ -22,7 +21,7 @@ const TodaysOrders = ({ navigation }) => {
         return {
           id: doc.id,
           ...data,
-          items: data.items || [] // Assuming itemsOrdered field contains an array of items with name and quantity properties
+          items: data.itemsOrdered || [] // Using itemsOrdered field for items
         };
       });
       setOrders(fetchedOrders);
@@ -31,23 +30,31 @@ const TodaysOrders = ({ navigation }) => {
     }
   };
 
-  const handleOrderReady = (order) => {
-    setSelectedOrder(order);
-    setTokenInput('');
+  const handleOrderReady = async (order) => {
+    const firestore = getFirestore();
+    const orderRef = doc(firestore, 'orders', order.id);
+    await updateDoc(orderRef, { status: 'Ready' });
+    fetchOrders(); // Fetch orders again to update the list
   };
 
-  const handleTokenSubmit = async () => {
+  const handleTokenSubmit = async (orderId) => {
+    const selectedOrder = orders.find(order => order.id === orderId);
+    const tokenInput = tokenInputs[orderId];
+
     if (selectedOrder && selectedOrder.token === tokenInput) {
       const firestore = getFirestore();
       const orderRef = doc(firestore, 'orders', selectedOrder.id);
       await deleteDoc(orderRef); // Delete the document from Firestore
       Alert.alert('Order successful', 'The order has been picked up');
-      setSelectedOrder(null);
-      setTokenInput('');
+      setTokenInputs(prev => ({ ...prev, [orderId]: '' }));
       fetchOrders();
     } else {
       Alert.alert('Invalid Token', 'The token entered is incorrect.');
     }
+  };
+
+  const handleTokenInputChange = (orderId, value) => {
+    setTokenInputs(prev => ({ ...prev, [orderId]: value }));
   };
 
   return (
@@ -79,16 +86,16 @@ const TodaysOrders = ({ navigation }) => {
                 <Text style={styles.readyButtonText}>Ready</Text>
               </TouchableOpacity>
             )}
-            {selectedOrder && selectedOrder.id === item.id && (
+            {item.status === 'Ready' && (
               <View style={styles.tokenContainer}>
-                <Text style={styles.tokenText}>Enter Token for Order Number: {selectedOrder.orderNumber}</Text>
+                <Text style={styles.tokenText}>Enter Token for Order Number: {item.orderNumber}</Text>
                 <TextInput
                   style={styles.tokenInput}
-                  value={tokenInput}
-                  onChangeText={setTokenInput}
+                  value={tokenInputs[item.id] || ''}
+                  onChangeText={(value) => handleTokenInputChange(item.id, value)}
                   placeholder="Enter Token"
                 />
-                <TouchableOpacity style={styles.submitButton} onPress={handleTokenSubmit}>
+                <TouchableOpacity style={styles.submitButton} onPress={() => handleTokenSubmit(item.id)}>
                   <Text style={styles.submitButtonText}>Submit</Text>
                 </TouchableOpacity>
               </View>

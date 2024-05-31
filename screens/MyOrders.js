@@ -66,12 +66,12 @@ const MyOrders = ({ route }) => {
             <Text style={styles.orderText}>Token: {item.token}</Text>
             <Text style={styles.orderText}>Status: {item.status}</Text>
             {/* {item.status === 'Pending' && (
-              // <TouchableOpacity
-              //   style={styles.pickupButton}
-              //   onPress={() => handleOrderPickedUp(item.id)}
-              // >
-              //   <Text style={styles.pickupButtonText}>Mark as Picked Up</Text>
-              // </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.pickupButton}
+                onPress={() => handleOrderPickedUp(item.id)}
+              >
+                <Text style={styles.pickupButtonText}>Mark as Picked Up</Text>
+              </TouchableOpacity>
             )} */}
             <TouchableOpacity
               style={styles.deleteButton}
