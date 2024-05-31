@@ -55,7 +55,7 @@ const TodaysOrders = ({ navigation }) => {
             <Text style={styles.orderText}>Order Number: {item.orderNumber}</Text>
             <Text style={styles.orderText}>Student Number: {item.studentNumber}</Text>
             <Text style={styles.orderText}>Items Ordered:</Text>
-            {item.items.map((product, index) => (
+            {item.items && item.items.map((product, index) => ( // Add null check for item.items
               <Text key={index} style={styles.itemText}>
                 {product.name} x {product.quantity}
               </Text>
