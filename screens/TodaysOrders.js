@@ -12,20 +12,28 @@ const TodaysOrders = ({ navigation }) => {
   }, []);
 
   const fetchOrders = async () => {
-    const firestore = getFirestore();
-    const ordersCollectionRef = collection(firestore, 'orders');
-    const q = query(ordersCollectionRef, where('status', 'in', ['Pending', 'Ready']));
-    const querySnapshot = await getDocs(q);
-    const fetchedOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setOrders(fetchedOrders);
+    try {
+      const firestore = getFirestore();
+      const ordersCollectionRef = collection(firestore, 'orders');
+      const q = query(ordersCollectionRef, where('status', 'in', ['Pending', 'Ready']));
+      const querySnapshot = await getDocs(q);
+      const fetchedOrders = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          items: data.items || [] // Assuming itemsOrdered field contains an array of items with name and quantity properties
+        };
+      });
+      setOrders(fetchedOrders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
   };
 
-  const handleOrderReady = async (order) => {
-    // Update status to Ready
-    const firestore = getFirestore();
-    const orderRef = doc(firestore, 'orders', order.id);
-    await updateDoc(orderRef, { status: 'Ready' });
-    fetchOrders(); // Fetch updated orders
+  const handleOrderReady = (order) => {
+    setSelectedOrder(order);
+    setTokenInput('');
   };
 
   const handleTokenSubmit = async () => {
@@ -53,12 +61,14 @@ const TodaysOrders = ({ navigation }) => {
             <Text style={styles.orderText}>Order Number: {item.orderNumber}</Text>
             <Text style={styles.orderText}>Status: {item.status}</Text>
             <Text style={styles.orderText}>Student Number: {item.studentNumber}</Text>
-            <Text style={styles.orderText}>Products: </Text>
+            <Text style={styles.orderText}>Items: </Text>
             <FlatList
-              data={item.products} // Ensure 'products' exist and is an array
-              keyExtractor={(product) => product.id}
-              renderItem={({ product }) => ( // Ensure 'product' is properly extracted
-                <Text style={styles.productText}>{product.name} x {product.quantity}</Text>
+              data={item.items}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View>
+                  <Text>{item.name} x {item.quantity}</Text>
+                </View>
               )}
             />
             {item.status === 'Pending' && (
@@ -69,23 +79,23 @@ const TodaysOrders = ({ navigation }) => {
                 <Text style={styles.readyButtonText}>Ready</Text>
               </TouchableOpacity>
             )}
+            {selectedOrder && selectedOrder.id === item.id && (
+              <View style={styles.tokenContainer}>
+                <Text style={styles.tokenText}>Enter Token for Order Number: {selectedOrder.orderNumber}</Text>
+                <TextInput
+                  style={styles.tokenInput}
+                  value={tokenInput}
+                  onChangeText={setTokenInput}
+                  placeholder="Enter Token"
+                />
+                <TouchableOpacity style={styles.submitButton} onPress={handleTokenSubmit}>
+                  <Text style={styles.submitButtonText}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
       />
-      {selectedOrder && (
-        <View style={styles.tokenContainer}>
-          <Text style={styles.tokenText}>Enter Token for Order Number: {selectedOrder.orderNumber}</Text>
-          <TextInput
-            style={styles.tokenInput}
-            value={tokenInput}
-            onChangeText={setTokenInput}
-            placeholder="Enter Token"
-          />
-          <TouchableOpacity style={styles.submitButton} onPress={handleTokenSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 };
@@ -111,10 +121,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 5,
   },
-  productText: {
-    fontSize: 16,
-    marginLeft: 10,
-  },
   readyButton: {
     backgroundColor: 'green',
     padding: 10,
@@ -131,7 +137,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 10,
   },
   tokenText: {
     fontSize: 18,
