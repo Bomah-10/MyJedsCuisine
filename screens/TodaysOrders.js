@@ -25,7 +25,6 @@ const TodaysOrders = ({ navigation }) => {
     const firestore = getFirestore();
     const orderRef = doc(firestore, 'orders', order.id);
     await updateDoc(orderRef, { status: 'Ready' });
-    setSelectedOrder(order); // Set the selected order
     fetchOrders(); // Fetch updated orders
   };
 
@@ -53,6 +52,15 @@ const TodaysOrders = ({ navigation }) => {
           <View style={styles.orderItem}>
             <Text style={styles.orderText}>Order Number: {item.orderNumber}</Text>
             <Text style={styles.orderText}>Status: {item.status}</Text>
+            <Text style={styles.orderText}>Student Number: {item.studentNumber}</Text>
+            <Text style={styles.orderText}>Products: </Text>
+            <FlatList
+              data={item.products} // Ensure 'products' exist and is an array
+              keyExtractor={(product) => product.id}
+              renderItem={({ product }) => ( // Ensure 'product' is properly extracted
+                <Text style={styles.productText}>{product.name} x {product.quantity}</Text>
+              )}
+            />
             {item.status === 'Pending' && (
               <TouchableOpacity
                 style={styles.readyButton}
@@ -102,6 +110,10 @@ const styles = StyleSheet.create({
   orderText: {
     fontSize: 18,
     marginBottom: 5,
+  },
+  productText: {
+    fontSize: 16,
+    marginLeft: 10,
   },
   readyButton: {
     backgroundColor: 'green',

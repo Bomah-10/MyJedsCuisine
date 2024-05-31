@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Pressable, Alert } from 'react-native';
 
 const Confirmation = ({ navigation, route }) => {
   const { selectedProducts, studentNumber } = route.params; // Added studentNumber
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     marginTop: 22
   },
   modalView: {
-    margin: 20,
+    margin:20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
@@ -213,3 +213,4 @@ const styles = StyleSheet.create({
 });
 
 export default Confirmation;
+ 
