@@ -25,6 +25,7 @@ const TodaysOrders = ({ navigation }) => {
     const firestore = getFirestore();
     const orderRef = doc(firestore, 'orders', order.id);
     await updateDoc(orderRef, { status: 'Ready' });
+    setSelectedOrder(order); // Set the selected order
     fetchOrders(); // Fetch updated orders
   };
 
