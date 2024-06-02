@@ -16,14 +16,7 @@ const TodaysOrders = ({ navigation }) => {
       const ordersCollectionRef = collection(firestore, 'orders');
       const q = query(ordersCollectionRef, where('status', 'in', ['Pending', 'Ready']));
       const querySnapshot = await getDocs(q);
-      const fetchedOrders = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          items: data.itemsOrdered || [] // Using itemsOrdered field for items
-        };
-      });
+      const fetchedOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setOrders(fetchedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -68,7 +61,7 @@ const TodaysOrders = ({ navigation }) => {
             <Text style={styles.orderText}>Order Number: {item.orderNumber}</Text>
             <Text style={styles.orderText}>Status: {item.status}</Text>
             <Text style={styles.orderText}>Student Number: {item.studentNumber}</Text>
-            <Text style={styles.orderText}>Items: </Text>
+            <Text style={styles.orderText}>Products:</Text>
             <FlatList
               data={item.items}
               keyExtractor={(item, index) => index.toString()}
@@ -83,7 +76,7 @@ const TodaysOrders = ({ navigation }) => {
                 style={styles.readyButton}
                 onPress={() => handleOrderReady(item)}
               >
-                <Text style={styles.readyButtonText}>Ready</Text>
+                <Text style={styles.readyButtonText}>Mark as Ready</Text>
               </TouchableOpacity>
             )}
             {item.status === 'Ready' && (
@@ -96,7 +89,7 @@ const TodaysOrders = ({ navigation }) => {
                   placeholder="Enter Token"
                 />
                 <TouchableOpacity style={styles.submitButton} onPress={() => handleTokenSubmit(item.id)}>
-                  <Text style={styles.submitButtonText}>Submit</Text>
+                  <Text style={styles.submitButtonText}>Submit Token</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -118,49 +111,44 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   orderItem: {
-    padding: 16,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 10,
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 16,
   },
   orderText: {
-    fontSize: 18,
-    marginBottom: 5,
+    fontSize: 16,
+    marginBottom: 8,
   },
   readyButton: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: 'orange',
+    padding: 8,
+    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
   },
   readyButtonText: {
     color: 'white',
     fontSize: 16,
   },
   tokenContainer: {
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginTop: 10,
+    marginTop: 16,
   },
   tokenText: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 16,
+    marginBottom: 8,
   },
   tokenInput: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 8,
   },
   submitButton: {
     backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
+    padding: 8,
+    borderRadius: 8,
     alignItems: 'center',
   },
   submitButtonText: {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { getFirestore, collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore'; // Remove addDoc, query, orderBy
 import { useNavigation } from '@react-navigation/native';
 
 const MainMenu = ({ route }) => {
@@ -32,31 +32,8 @@ const MainMenu = ({ route }) => {
     }
   };
 
-  const generateRandomCode = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
-
-  const handleContinue = async () => {
-    const firestore = getFirestore();
-    const ordersCollection = collection(firestore, 'orders');
-
-    // Get the current number of documents to determine the order number
-    const ordersQuery = query(ordersCollection, orderBy('orderNumber'));
-    const ordersSnapshot = await getDocs(ordersQuery);
-    const orderNumber = ordersSnapshot.size + 1; // orderNumber based on the position
-
-    const token = generateRandomCode();
-
-    // Create a new order document
-    await addDoc(ordersCollection, {
-      studentNumber,
-      orderNumber,
-      token,
-      itemsOrdered: selectedProducts,
-      status: 'Pending',
-    });
-
-    // Navigate to Confirmation screen
+  const handleContinue = () => {
+    // Only navigate to Confirmation screen without creating a new order document
     navigation.navigate('Confirmation', { selectedProducts, studentNumber });
   };
 
