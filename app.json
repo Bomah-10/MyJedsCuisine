@@ -23,6 +23,9 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "entryPoint": "./node_modules/expo/AppEntry.js"
+    "entryPoint": "./node_modules/expo/AppEntry.js",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
