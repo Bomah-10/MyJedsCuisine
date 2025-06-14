@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { getFirestore, collection, getDocs } from 'firebase/firestore'; // Remove addDoc, query, orderBy
 import { useNavigation } from '@react-navigation/native';
+import { ArrowRightCircle, Receipt } from 'lucide-react-native';
+
 
 const MainMenu = ({ route }) => {
   const { studentNumber } = route.params;
@@ -67,12 +69,14 @@ const MainMenu = ({ route }) => {
       />
       {selectedProducts.length > 0 && (
         <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <ArrowRightCircle size={32} color="white" />
         </TouchableOpacity>
-      )}
-      <TouchableOpacity style={styles.myOrdersButton} onPress={handleMyOrders}>
-        <Text style={styles.myOrdersButtonText}>My Orders</Text>
-      </TouchableOpacity>
+)}
+
+<TouchableOpacity style={styles.myOrdersButton} onPress={handleMyOrders}>
+  <Receipt size={32} color="white" />
+</TouchableOpacity>
+
     </View>
   );
 };
@@ -113,25 +117,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   continueButton: {
-    backgroundColor: 'green',
-    padding: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 16,
-  },
+  backgroundColor: 'green',
+  padding: 12,
+  borderRadius: 50,
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'absolute',
+  bottom: 20,
+  right: 20,
+  width: 60,
+  height: 60,
+  marginVertical: 16,
+},
+myOrdersButton: {
+  backgroundColor: 'blue',
+  padding: 12,
+  borderRadius: 50,
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'absolute',
+  bottom: 20,
+  left: 20,
+  width: 60,
+  height: 60,
+  marginBottom: 10,
+},
+
   continueButtonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  myOrdersButton: {
-    backgroundColor: 'blue',
-    padding: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 16,
   },
   myOrdersButtonText: {
     color: 'white',

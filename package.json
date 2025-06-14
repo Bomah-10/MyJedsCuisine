@@ -23,6 +23,7 @@
     "expo-status-bar": "~2.2.3",
     "express": "^4.19.2",
     "firebase": "^10.12.1",
+    "lucide-react-native": "^0.515.0",
     "memoize-one": "^6.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
