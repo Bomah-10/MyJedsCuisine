@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Image } 
 import { useNavigation } from '@react-navigation/native';
 import { firestore } from '../firebase';
 import { collection, getDocs, doc, updateDoc, addDoc } from 'firebase/firestore';
+import uuid from 'react-native-uuid'; // for temp keys
 
 const EditMenu = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', imageUrl: '' });
 
   useEffect(() => {
     fetchProducts();
@@ -28,33 +28,30 @@ const EditMenu = () => {
       const existingProducts = products.filter(product => product.id !== '');
       const newProducts = products.filter(product => product.id === '');
 
-      // Update existing products
       await Promise.all(
         existingProducts.map(async (product) => {
           const productRef = doc(firestore, 'products', product.id);
           const updatedData = {
             name: product.name || '',
             price: product.price !== undefined ? product.price : 0,
-            imageUrl: product.imageUrl || '',
           };
           await updateDoc(productRef, updatedData);
         })
       );
 
-      // Add new products
       await Promise.all(
         newProducts.map(async (product) => {
           const newProduct = {
             name: product.name || '',
             price: product.price !== undefined ? product.price : 0,
-            imageUrl: product.imageUrl || '',
+            imageUrl: product.imageUrl || '', // optional
           };
           await addDoc(collection(firestore, 'products'), newProduct);
         })
       );
 
       alert('Changes saved successfully!');
-      fetchProducts(); // Refresh the products list after saving
+      fetchProducts();
     } catch (error) {
       console.error('Error saving changes:', error);
       alert('Failed to save changes. Please try again later.');
@@ -77,22 +74,15 @@ const EditMenu = () => {
     );
   };
 
-  const handleEditImage = (productId, newImageUrl) => {
-    setProducts(prevProducts =>
-      prevProducts.map(product =>
-        product.id === productId ? { ...product, imageUrl: newImageUrl } : product
-      )
-    );
-  };
-
   const handleAddItem = () => {
     setProducts(prevProducts => [
       ...prevProducts,
       {
-        id: '', // Use an empty string to indicate a new item
+        id: '', // to trigger new item logic
+        tempId: uuid.v4(),
         name: '',
         price: '',
-        imageUrl: '',
+        imageUrl: '', // optional fallback
       },
     ]);
   };
@@ -102,12 +92,15 @@ const EditMenu = () => {
       <Text style={styles.title}>Edit Menu</Text>
       <FlatList
         data={products}
-        keyExtractor={(item) => item.id || item.tempId} // Use tempId if id is empty
+        keyExtractor={(item) => item.id || item.tempId}
         renderItem={({ item }) => (
           <View style={styles.productItem}>
             <Image
               style={styles.productImage}
-              source={{ uri: item.imageUrl }}
+              source={{
+                uri: item.imageUrl || 'https://via.placeholder.com/50',
+              }}
+              onError={() => console.warn('Image failed to load')}
             />
             <View style={styles.productDetails}>
               <TextInput
@@ -118,19 +111,13 @@ const EditMenu = () => {
               />
               <TextInput
                 style={styles.input}
-                value={item.price.toString()}
+                value={item.price?.toString() ?? ''}
                 onChangeText={(text) => {
                   const price = text === '' ? '' : parseFloat(text);
                   handleEditPrice(item.id, price);
                 }}
                 keyboardType="numeric"
                 placeholder="Price"
-              />
-              <TextInput
-                style={styles.input}
-                value={item.imageUrl}
-                onChangeText={(text) => handleEditImage(item.id, text)}
-                placeholder="Image URL"
               />
             </View>
           </View>
@@ -166,6 +153,7 @@ const styles = StyleSheet.create({
     height: 50,
     marginRight: 10,
     borderRadius: 5,
+    backgroundColor: '#eaeaea',
   },
   productDetails: {
     flex: 1,
