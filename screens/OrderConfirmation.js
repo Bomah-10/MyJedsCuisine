@@ -2,7 +2,7 @@ import React from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Image
 } from 'react-native';
-import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { CheckCircle, XCircle } from 'lucide-react-native';
 
@@ -60,6 +60,7 @@ const OrderConfirmation = ({ route }) => {
         quantity: product.quantity
       })),
       status: 'Pending',
+      createdAt: serverTimestamp(), // ✅ Add timestamp here
     });
   };
 
@@ -152,10 +153,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'right',
     marginTop: 24,
-    marginBottom: 60, // creates space above confirm button
+    marginBottom: 60,
     fontWeight: 'bold',
   },
-
   confirmButton: {
     position: 'absolute',
     bottom: 20,
@@ -175,7 +175,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
-
   cancelButton: {
     position: 'absolute',
     bottom: 20,

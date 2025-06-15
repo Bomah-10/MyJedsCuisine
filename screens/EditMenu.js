@@ -22,6 +22,7 @@ import {
 } from 'firebase/firestore';
 import uuid from 'react-native-uuid';
 
+// ... imports remain unchanged
 const EditMenu = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
@@ -29,9 +30,7 @@ const EditMenu = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const tickOpacity = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  useEffect(() => { fetchProducts(); }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -40,7 +39,7 @@ const EditMenu = () => {
 
         e.preventDefault();
         Alert.alert('Unsaved Changes', 'You have unsaved changes. Save before leaving?', [
-          { text: 'Cancel', style: 'cancel', onPress: () => {} },
+          { text: 'Cancel', style: 'cancel' },
           {
             text: 'Discard',
             style: 'destructive',
@@ -50,7 +49,6 @@ const EditMenu = () => {
       };
 
       navigation.addListener('beforeRemove', onBeforeRemove);
-
       return () => navigation.removeListener('beforeRemove', onBeforeRemove);
     }, [hasChanges])
   );
@@ -77,29 +75,25 @@ const EditMenu = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const existingProducts = products.filter(product => product.id);
-      const newProducts = products.filter(product => !product.id);
+      const existingProducts = products.filter(p => p.id);
+      const newProducts = products.filter(p => !p.id);
 
-      await Promise.all(
-        existingProducts.map(async (product) => {
-          const ref = doc(firestore, 'products', product.id);
-          await updateDoc(ref, {
-            name: product.name || '',
-            price: product.price !== undefined ? product.price : 0,
-          });
-        })
-      );
+      await Promise.all(existingProducts.map(async (product) => {
+        const ref = doc(firestore, 'products', product.id);
+        await updateDoc(ref, {
+          name: product.name || '',
+          price: product.price !== undefined ? product.price : 0,
+        });
+      }));
 
-      await Promise.all(
-        newProducts.map(async (product) => {
-          const newProduct = {
-            name: product.name || '',
-            price: product.price !== undefined ? product.price : 0,
-            imageUrl: product.imageUrl || '',
-          };
-          await addDoc(collection(firestore, 'products'), newProduct);
-        })
-      );
+      await Promise.all(newProducts.map(async (product) => {
+        const newProduct = {
+          name: product.name || '',
+          price: product.price !== undefined ? product.price : 0,
+          imageUrl: product.imageUrl || '',
+        };
+        await addDoc(collection(firestore, 'products'), newProduct);
+      }));
 
       alert('Changes saved successfully!');
       fetchProducts();
@@ -137,13 +131,17 @@ const EditMenu = () => {
     setHasChanges(true);
   };
 
+  const handleCancelNewItem = (tempId) => {
+    setProducts(prev => prev.filter(p => p.tempId !== tempId));
+  };
+
   const handleEditField = (idOrTempId, field, value) => {
     setHasChanges(true);
-    setProducts(prevProducts =>
-      prevProducts.map(product =>
-        product.id === idOrTempId || product.tempId === idOrTempId
-          ? { ...product, [field]: value }
-          : product
+    setProducts(prev =>
+      prev.map(p =>
+        p.id === idOrTempId || p.tempId === idOrTempId
+          ? { ...p, [field]: value }
+          : p
       )
     );
   };
@@ -182,38 +180,55 @@ const EditMenu = () => {
       <FlatList
         data={products}
         keyExtractor={(item) => item.id || item.tempId}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.productItem, isSelected(item.id) && styles.selectedItem]}
-            onLongPress={() => toggleSelectItem(item.id)}
-          >
-            <Image
-              style={styles.productImage}
-              source={{ uri: item.imageUrl || 'https://via.placeholder.com/50' }}
-            />
-            <View style={styles.productDetails}>
-              <TextInput
-                style={styles.input}
-                value={item.name}
-                onChangeText={(text) => handleEditField(item.id || item.tempId, 'name', text)}
-                placeholder="Item Name"
+        renderItem={({ item }) => {
+          const isNew = !item.id;
+          return (
+            <TouchableOpacity
+              style={[styles.productItem, isSelected(item.id) && styles.selectedItem]}
+              onLongPress={() => toggleSelectItem(item.id)}
+              activeOpacity={1}
+            >
+              <Image
+                style={styles.productImage}
+                source={{ uri: item.imageUrl || 'https://via.placeholder.com/50' }}
               />
-              <TextInput
-                style={styles.input}
-                value={item.price?.toString() ?? ''}
-                onChangeText={(text) =>
-                  handleEditField(
-                    item.id || item.tempId,
-                    'price',
-                    text === '' ? '' : parseFloat(text)
-                  )
-                }
-                keyboardType="numeric"
-                placeholder="Price"
-              />
-            </View>
-          </TouchableOpacity>
-        )}
+              <View style={styles.productDetails}>
+                <TextInput
+                  style={styles.input}
+                  value={item.name}
+                  onChangeText={(text) => handleEditField(item.id || item.tempId, 'name', text)}
+                  placeholder="Item Name"
+                />
+                <TextInput
+                  style={styles.input}
+                  value={item.price?.toString() ?? ''}
+                  onChangeText={(text) =>
+                    handleEditField(
+                      item.id || item.tempId,
+                      'price',
+                      text === '' ? '' : parseFloat(text)
+                    )
+                  }
+                  keyboardType="numeric"
+                  placeholder="Price"
+                />
+                {isNew && (
+                  <>
+                    <TextInput
+                      style={styles.input}
+                      value={item.imageUrl}
+                      onChangeText={(text) => handleEditField(item.tempId, 'imageUrl', text)}
+                      placeholder="Image URL"
+                    />
+                    <TouchableOpacity onPress={() => handleCancelNewItem(item.tempId)}>
+                      <Text style={styles.cancelButton}>Cancel</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        }}
       />
     </View>
   );
@@ -265,6 +280,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 8,
+  },
+  cancelButton: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 4,
+    alignSelf: 'flex-start',
   },
   deleteButton: {
     backgroundColor: 'red',
