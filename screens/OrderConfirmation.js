@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, Image
+} from 'react-native';
 import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
+import { CheckCircle, XCircle } from 'lucide-react-native';
 
 const OrderConfirmation = ({ route }) => {
   const { selectedProducts, studentNumber } = route.params;
@@ -52,7 +55,10 @@ const OrderConfirmation = ({ route }) => {
       orderNumber,
       token,
       studentNumber,
-      items: selectedProducts.map(product => ({ name: product.name, quantity: product.quantity })),
+      items: selectedProducts.map(product => ({
+        name: product.name,
+        quantity: product.quantity
+      })),
       status: 'Pending',
     });
   };
@@ -77,9 +83,24 @@ const OrderConfirmation = ({ route }) => {
           </View>
         )}
       />
+
       <Text style={styles.totalAmount}>Total: N${totalPrice.toFixed(2)}</Text>
-      <TouchableOpacity style={styles.confirmButton} onPress={handleOrderConfirmation}>
-        <Text style={styles.confirmButtonText}>Confirm Order</Text>
+
+      {/* Cancel Button */}
+      <TouchableOpacity
+        style={styles.cancelButton}
+        onPress={() => navigation.navigate('Confirmation', { selectedProducts, studentNumber })}
+      >
+        <XCircle size={24} color="white" />
+      </TouchableOpacity>
+
+      {/* Confirm Button */}
+      <TouchableOpacity
+        style={styles.confirmButton}
+        onPress={handleOrderConfirmation}
+      >
+        <CheckCircle size={24} color="white" />
+        <Text style={styles.confirmButtonText}>Confirm</Text>
       </TouchableOpacity>
     </View>
   );
@@ -89,6 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    paddingBottom: 100,
   },
   title: {
     fontSize: 24,
@@ -129,21 +151,44 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 20,
     textAlign: 'right',
-    marginTop: 16,
+    marginTop: 24,
+    marginBottom: 60, // creates space above confirm button
     fontWeight: 'bold',
   },
+
   confirmButton: {
-    backgroundColor: 'red',
-    padding: 16,
-    borderRadius: 10,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    width: 90,
+    height: 90,
+    elevation: 4,
   },
   confirmButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 4,
+  },
+
+  cancelButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: 'red',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+    height: 60,
+    elevation: 4,
   },
 });
 

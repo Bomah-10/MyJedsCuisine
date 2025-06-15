@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Modal, Pressable, Alert } from 'react-native';
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity,
+  Image, Modal, Pressable, Alert
+} from 'react-native';
+import { CheckCircle, XCircle } from 'lucide-react-native';
 
 const Confirmation = ({ navigation, route }) => {
-  const { selectedProducts, studentNumber } = route.params; // Added studentNumber
+  const { selectedProducts, studentNumber } = route.params;
   const [products, setProducts] = useState(selectedProducts);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -16,7 +20,7 @@ const Confirmation = ({ navigation, route }) => {
     if (method === 'Meal Account' && totalAmount > 90) {
       Alert.alert("Error", "Sorry! Your total amount cannot exceed N$ 90 when paying with a meal account.");
     } else {
-      navigation.navigate('OrderConfirmation', { selectedProducts: products, studentNumber: studentNumber }); // Pass studentNumber to OrderConfirmation
+      navigation.navigate('OrderConfirmation', { selectedProducts: products, studentNumber });
     }
   };
 
@@ -41,10 +45,7 @@ const Confirmation = ({ navigation, route }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.productItem}>
-            <Image
-              style={styles.productImage}
-              source={{ uri: item.imageUrl }}
-            />
+            <Image style={styles.productImage} source={{ uri: item.imageUrl }} />
             <View style={styles.productDetails}>
               <Text style={styles.productName}>{item.name}</Text>
               <Text style={styles.productPrice}>N${item.price * item.quantity}</Text>
@@ -62,31 +63,34 @@ const Confirmation = ({ navigation, route }) => {
         )}
       />
       <Text style={styles.totalAmount}>Total: N${totalAmount.toFixed(2)}</Text>
+
+      <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.navigate('MainMenu', { studentNumber })}>
+        <XCircle size={28} color="white" />
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.orderButton} onPress={handleConfirmPress}>
-        <Text style={styles.orderButtonText}>Order</Text>
+        <CheckCircle size={32} color="white" />
+        <Text style={styles.iconLabel}>Order</Text>
       </TouchableOpacity>
 
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
+        onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setModalVisible(false)}>
+              <XCircle size={24} color="gray" />
+            </TouchableOpacity>
+
             <Text style={styles.modalText}>Select Payment Method</Text>
-            <Pressable
-              style={[styles.button, styles.mealAccountButton]}
-              onPress={() => handlePaymentMethod('Meal Account')}
-            >
+
+            <Pressable style={[styles.button, styles.mealAccountButton]} onPress={() => handlePaymentMethod('Meal Account')}>
               <Text style={styles.buttonText}>Meal Account</Text>
             </Pressable>
-            <Pressable
-              style={[styles.button, styles.othersButton]}
-              onPress={() => handlePaymentMethod('Others')}
-            >
+            <Pressable style={[styles.button, styles.othersButton]} onPress={() => handlePaymentMethod('Others')}>
               <Text style={styles.buttonText}>Others</Text>
             </Pressable>
           </View>
@@ -125,7 +129,6 @@ const styles = StyleSheet.create({
   },
   productDetails: {
     flex: 1,
-    justifyContent: 'center',
   },
   productName: {
     fontSize: 16,
@@ -152,19 +155,40 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontWeight: 'bold',
   },
-  orderButton: {
+
+  cancelButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
     backgroundColor: 'red',
-    padding: 16,
-    borderRadius: 10,
+    borderRadius: 30,
+    width: 50,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    elevation: 4,
   },
-  orderButtonText: {
+
+  orderButton: {
+    position: 'absolute',
+    bottom: 30,
+    left: '50%',
+    transform: [{ translateX: -40 }],
+    backgroundColor: 'green',
+    borderRadius: 50,
+    width: 80,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
+
+  iconLabel: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 12,
+    marginTop: 4,
   },
+
   centeredView: {
     flex: 1,
     justifyContent: "center",
@@ -172,19 +196,24 @@ const styles = StyleSheet.create({
     marginTop: 22
   },
   modalView: {
-    margin:20,
+    margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
+    position: 'relative'
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    padding: 5,
   },
   button: {
     borderRadius: 10,
@@ -209,8 +238,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 18,
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default Confirmation;
- 
